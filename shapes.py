@@ -123,8 +123,8 @@ def get_shapes():
     # Параметризация Тора
     R_thor = 1.2
     r_thor = 0.6
-    num_theta_tor = 24
-    num_phi_tor = 12
+    num_theta_tor = 20
+    num_phi_tor = 10
 
     theta = np.linspace(0, 2 * np.pi, num_theta_tor, endpoint=False)
     phi = np.linspace(0, 2 * np.pi, num_phi_tor, endpoint=False)
@@ -147,6 +147,6 @@ def get_shapes():
             faces_thor.append([a, b, c, d])
 
     shapes["thor"]["faces"] = faces_thor
-    shapes["thor"]["colors"] = [ORANGE] * len(faces_thor)  # или любой другой цвет
+    shapes["thor"]["colors"] = [ORANGE] * len(faces_thor)
 
     return shapes
