@@ -38,16 +38,8 @@ def calculate_face_normal(face_vertices):
     norm = np.linalg.norm(normal)
 
     if norm == 0:
-        centroid = np.mean(face_vertices, axis=0)
-        if np.linalg.norm(centroid) == 0:
-            return np.array([0, 0, 1])
-        return centroid / np.linalg.norm(centroid)
+        return np.array([0, 0, 1])
     normal /= norm
-
-    centroid = np.mean(face_vertices, axis=0)
-    to_center = -centroid
-    if np.dot(normal, to_center) > 0:
-        normal = -normal
     return  normal
 
 # Функция для применения модели освещения Ламберта
@@ -68,7 +60,6 @@ def apply_lambert_lighting(base_color, normal, light_dir, ambient):
 def is_face_visible(face_normal, face_center, camera_position):
     # Вектор от центра грани к камере
     to_camera = camera_position - face_center
-
 
     # Если нормаль направлена наружу, то для видимой грани скалярное произведение нормали и вектора к камере будет положительным
     return np.dot(face_normal, to_camera) > 0.0

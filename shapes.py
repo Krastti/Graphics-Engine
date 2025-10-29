@@ -1,6 +1,6 @@
 import numpy as np
 from parameters import BLUE, RED, GREEN, YELLOW, ORANGE, LIGHT_BLUE
-
+import random
 
 def get_shapes():
     shapes = {
@@ -69,7 +69,7 @@ def get_shapes():
 
     # Параметризация сферы
     r_sphere = 1.0
-    num_theta = 18  # Количество точек по долготе
+    num_theta = 15  # Количество точек по долготе
     num_phi = 9  # Количество точек по широте
 
     theta = np.linspace(0, 2 * np.pi, num_theta, endpoint=False)
@@ -92,7 +92,7 @@ def get_shapes():
         pole = 0  # i=0, любая j — все одинаковые
         v1 = 1 * num_theta + j
         v2 = 1 * num_theta + (j + 1) % num_theta
-        faces.append([pole, v1, v2])
+        faces.append([pole, v2, v1])
 
     # Основная часть: quads между i=1 и i=num_phi-2
     for i in range(1, num_phi - 2):
@@ -108,10 +108,17 @@ def get_shapes():
     for j in range(num_theta):
         v1 = (num_phi - 2) * num_theta + j
         v2 = (num_phi - 2) * num_theta + (j + 1) % num_theta
-        faces.append([v1, south_pole, v2])
+        faces.append([v2, south_pole, v1])
 
     shapes["sphere"]["faces"] = faces
-    shapes["sphere"]["colors"] = [LIGHT_BLUE] * len(faces)
+
+    col_blue = int(len(faces) * 0.7)
+    col_green = len(faces) - col_blue
+
+    colors_sphere = [LIGHT_BLUE] * col_blue + [GREEN] * col_green
+    random.shuffle(colors_sphere)
+    shapes["sphere"]["colors"] = colors_sphere
+
 
     # Параметризация Тора
     R_thor = 1.2
