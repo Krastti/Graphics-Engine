@@ -1,9 +1,11 @@
 import pygame
 import numpy as np
+
 from math_utils import bresenham_algorithm, calculate_face_normal, apply_lambert_lighting, is_face_visible
 from parameters import WIDTH, HEIGHT, WHITE
 
-def render_scene(screen, rotated_vertices, faces, face_colors, camera_distance, fov, ambient_intensity, light_direction, back_face_culling):
+def render_scene(screen, current_shape, rotated_vertices, faces, face_colors, camera_distance, fov, ambient_intensity, light_direction, back_face_culling):
+
     # Шаг 1: Проецирование 3D точек в 2D
     projected_points = []
     for i in range(len(rotated_vertices)):
@@ -15,22 +17,29 @@ def render_scene(screen, rotated_vertices, faces, face_colors, camera_distance, 
 
     # Шаг 2: Расчёт средней Z-координаты (z_avg) для каждой грани
     # Сортировка происходит по *всем* граням, независимо от BFC
-    faces_with_depth = []
-    for i, face in enumerate(faces):
-        face_vertices_3d = [rotated_vertices[idx] for idx in face]
-        # Вычисляем среднюю Z-координату вершин грани
-        z_coords = [vertex[2] for vertex in face_vertices_3d]
-        z_avg = sum(z_coords) / len(z_coords)
+    needs_sorting = current_shape != "mobius_strip"
+    needs_bfc = back_face_culling and current_shape != "mobius_strip"
 
-        # Сохраняем грань, среднюю Z-координату и цвет
-        faces_with_depth.append((face, z_avg, face_colors[i]))
+    if needs_sorting:
+        faces_with_depth = []
+        for i, face in enumerate(faces):
+            face_vertices_3d = [rotated_vertices[idx] for idx in face]
+            # Вычисляем среднюю Z-координату вершин грани
+            z_cords = [vertex[2] for vertex in face_vertices_3d]
+            z_avg = sum(z_cords) / len(z_cords)
 
-    # Шаг 3: Сортировка *всех* граней по z_avg (от дальнего к ближнему)
-    # Грани с более отрицательной z_avg (дальше от камеры) идут первыми
-    # Грани с менее отрицательной или положительной z_avg (ближе к камере) идут позже
-    faces_with_depth.sort(key=lambda x: x[1], reverse=True)
+            # Сохраняем грань, среднюю Z-координату и цвет
+            faces_with_depth.append((face, z_avg, face_colors[i]))
 
-    # Шаг 4: Проверка видимости (BFC) *после* сортировки, но перед отрисовкой
+        # Шаг 3: Сортировка *всех* граней по z_avg (от дальнего к ближнему)
+        if current_shape == "thor":
+            faces_with_depth.sort(key=lambda x: x[1], reverse=True)
+        else:
+            faces_with_depth.sort(key=lambda x: x[1])
+    else:
+        faces_with_depth = [(faces[i], 0, face_colors[i]) for i in range(len(faces))]
+
+    # Шаг 4: Проверка видимости (BFC) *после* сортировки, но перед рендером
     visible_face_count = 0
     for face, z_avg, color in faces_with_depth:
         face_vertices_3d = [rotated_vertices[idx] for idx in face]
@@ -38,8 +47,8 @@ def render_scene(screen, rotated_vertices, faces, face_colors, camera_distance, 
         face_center = np.mean(face_vertices_3d, axis=0)
 
         # Проверяем видимость грани с помощью Back Face Culling *только сейчас*
-        if back_face_culling and not is_face_visible(face_normal, face_center, camera_position=np.array([0, 0, -camera_distance])):
-            continue  # Пропускаем невидимую грань, не отрисовывая её
+        if needs_bfc and not is_face_visible(face_normal, face_center, camera_position=np.array([0, 0, -camera_distance])):
+            continue  # Пропускаем невидимую грань, не рендеря её
 
         # Применяем модель освещения Ламберта
         lighted_color = apply_lambert_lighting(color, face_normal, light_direction, ambient_intensity)

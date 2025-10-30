@@ -57,6 +57,8 @@ def switch_shape():
         current_shape = "sphere"
     elif current_shape == "sphere":
         current_shape = "thor"
+    elif current_shape == "thor":
+        current_shape = "mobius_strip"
     else:
         current_shape = "cube"
 
@@ -161,7 +163,7 @@ while running:
     rotated_vertices = vertices_np @ R.T
 
     # Рендеринг сцены
-    visible_face_count = render_scene(screen, rotated_vertices, faces, face_colors,
+    visible_face_count = render_scene(screen, current_shape, rotated_vertices, faces, face_colors,
                 camera_distance, fov_slider.get_value(), ambient_slider.get_value(), LIGHT_DIRECTION, back_face_culling)
 
     # Рендеринг UI

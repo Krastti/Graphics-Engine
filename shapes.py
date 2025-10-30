@@ -64,6 +64,11 @@ def get_shapes():
             "vertices": [],
             "faces": [],
             "colors": []
+        },
+        "mobius_strip": {
+            "vertices": [],
+            "faces": [],
+            "colors": []
         }
     }
 
@@ -148,5 +153,48 @@ def get_shapes():
 
     shapes["thor"]["faces"] = faces_thor
     shapes["thor"]["colors"] = [ORANGE] * len(faces_thor)
+
+    # --- Параметризация Ленты Мёбиуса ---
+    # Независимые параметры u и v
+    R_mobius = 1.5  # Радиус ленты (расстояние от центра до средней линии)
+    w_mobius = 0.6  # Половина ширины ленты (v изменяется от -w до +w)
+    num_u = 30  # Количество точек по длине ленты (u от 0 до 2pi)
+    num_v = 10  # Количество точек по ширине ленты (v от -w до +w)
+
+    # Параметры u и v
+    u = np.linspace(0, 2 * np.pi, num_u, endpoint=False)  # endpoint=False помогает избежать дублирования края
+    v = np.linspace(-w_mobius, w_mobius, num_v)
+
+    # Создание сетки параметров
+    u_grid, v_grid = np.meshgrid(u, v, indexing="ij")  # shape: (num_u, num_v)
+
+    # Вычисление координат по параметрическому уравнению
+    cos_u_half = np.cos(u_grid / 2)
+    sin_u_half = np.sin(u_grid / 2)
+    cos_u = np.cos(u_grid)
+    sin_u = np.sin(u_grid)
+
+    x_m = (R_mobius + (v_grid / 2) * cos_u_half) * cos_u
+    y_m = (R_mobius + (v_grid / 2) * cos_u_half) * sin_u
+    z_m = (v_grid / 2) * sin_u_half
+
+    # Собираем вершины
+    vertices_mobius = np.stack([x_m, y_m, z_m], axis=-1).reshape(-1, 3)
+    shapes["mobius_strip"]["vertices"] = vertices_mobius.tolist()
+
+    # Генерация граней (четырехугольников)
+    faces_mobius = []
+    for i in range(num_v - 1):
+        for j in range(num_u):
+            # Индексы вершин текущего четырехугольника
+            a = i * num_u + j
+            b = i * num_u + (j + 1) % num_u  # Обеспечиваем цикличность по u
+            c = (i + 1) * num_u + (j + 1) % num_u
+            d = (i + 1) * num_u + j
+            faces_mobius.append([a, b, c, d])
+    shapes["mobius_strip"]["faces"] = faces_mobius
+
+    # Цвета для ленты Мёбиуса
+    shapes["mobius_strip"]["colors"] = [YELLOW] * len(faces_mobius)
 
     return shapes
