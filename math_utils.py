@@ -39,7 +39,7 @@ def calculate_face_normal(face_vertices):
 
     if norm == 0:
         return np.array([0, 0, 1])
-    normal /= norm
+    normal = (normal / norm).astype(np.float64)
     return  normal
 
 # Функция для применения модели освещения Ламберта
