@@ -74,8 +74,8 @@ def get_shapes():
 
     # Параметризация сферы
     r_sphere = 1.0
-    num_theta = 15  # Количество точек по долготе
-    num_phi = 9  # Количество точек по широте
+    num_theta = 15
+    num_phi = 9
 
     theta = np.linspace(0, 2 * np.pi, num_theta, endpoint=False)
     phi = np.linspace(0, np.pi, num_phi)
@@ -85,21 +85,20 @@ def get_shapes():
     y = r_sphere * np.sin(phi_grid) * np.sin(theta_grid)
     z = r_sphere * np.cos(phi_grid)
 
-    # Собираем вершины в список списков (для совместимости с остальным кодом)
-    vertices = np.stack([x, y, z], axis=-1).reshape(-1, 3)  # shape: (num_lat * num_lon, 3)
+    # Собираем вершины в список списков
+    vertices = np.stack([x, y, z], axis=-1).reshape(-1, 3)
     shapes["sphere"]["vertices"] = vertices.tolist()
 
-    # Генерация граней
     faces = []
 
-    # Северный полюс → треугольники к первой параллели (i=1)
+    # Северный полюс
     for j in range(num_theta):
-        pole = 0  # i=0, любая j — все одинаковые
+        pole = 0
         v1 = 1 * num_theta + j
         v2 = 1 * num_theta + (j + 1) % num_theta
         faces.append([pole, v2, v1])
 
-    # Основная часть: quads между i=1 и i=num_phi-2
+    # Основная часть
     for i in range(1, num_phi - 2):
         for j in range(num_theta):
             a = i * num_theta + j
@@ -108,8 +107,8 @@ def get_shapes():
             d = (i + 1) * num_theta + j
             faces.append([a, b, c, d])
 
-    # Южный полюс → треугольники от последней параллели (i=num_phi-2)
-    south_pole = (num_phi - 1) * num_theta  # i=num_phi-1, j=0
+    # Южный полюс
+    south_pole = (num_phi - 1) * num_theta
     for j in range(num_theta):
         v1 = (num_phi - 2) * num_theta + j
         v2 = (num_phi - 2) * num_theta + (j + 1) % num_theta
@@ -154,19 +153,18 @@ def get_shapes():
     shapes["thor"]["faces"] = faces_thor
     shapes["thor"]["colors"] = [ORANGE] * len(faces_thor)
 
-    # --- Параметризация Ленты Мёбиуса ---
-    # Независимые параметры u и v
-    R_mobius = 1.5  # Радиус ленты (расстояние от центра до средней линии)
-    w_mobius = 0.6  # Половина ширины ленты (v изменяется от -w до +w)
-    num_u = 30  # Количество точек по длине ленты (u от 0 до 2pi)
-    num_v = 10  # Количество точек по ширине ленты (v от -w до +w)
+    # Параметризация ленты Мёбиуса
+    R_mobius = 1.5  # Радиус ленты
+    w_mobius = 0.6  # Половина ширины ленты
+    num_u = 30  # Количество точек по длине ленты
+    num_v = 10  # Количество точек по ширине ленты
 
     # Параметры u и v
-    u = np.linspace(0, 2 * np.pi, num_u, endpoint=False)  # endpoint=False помогает избежать дублирования края
+    u = np.linspace(0, 2 * np.pi, num_u, endpoint=False)
     v = np.linspace(-w_mobius, w_mobius, num_v)
 
     # Создание сетки параметров
-    u_grid, v_grid = np.meshgrid(u, v, indexing="ij")  # shape: (num_u, num_v)
+    u_grid, v_grid = np.meshgrid(u, v, indexing="ij")
 
     # Вычисление координат по параметрическому уравнению
     cos_u_half = np.cos(u_grid / 2)
@@ -182,13 +180,12 @@ def get_shapes():
     vertices_mobius = np.stack([x_m, y_m, z_m], axis=-1).reshape(-1, 3)
     shapes["mobius_strip"]["vertices"] = vertices_mobius.tolist()
 
-    # Генерация граней (четырехугольников)
+    # Генерация граней
     faces_mobius = []
     for i in range(num_v - 1):
         for j in range(num_u):
-            # Индексы вершин текущего четырехугольника
             a = i * num_u + j
-            b = i * num_u + (j + 1) % num_u  # Обеспечиваем цикличность по u
+            b = i * num_u + (j + 1) % num_u
             c = (i + 1) * num_u + (j + 1) % num_u
             d = (i + 1) * num_u + j
             faces_mobius.append([a, b, c, d])

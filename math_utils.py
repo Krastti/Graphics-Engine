@@ -58,10 +58,8 @@ def apply_lambert_lighting(base_color, normal, light_dir, ambient):
 
 # Функция для проверки видимости грани (Back Face Culling)
 def is_face_visible(face_normal, face_center, camera_position):
-    # Вектор от центра грани к камере
     to_camera = camera_position - face_center
 
-    # Если нормаль направлена наружу, то для видимой грани скалярное произведение нормали и вектора к камере будет положительным
     return np.dot(face_normal, to_camera) > 0.0
 
 # Функция для приближения камеры

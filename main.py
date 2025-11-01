@@ -1,8 +1,5 @@
-# main.py (изменённые части)
-
 import pygame
 import math
-from parameters import *
 from shapes import get_shapes
 from math_utils import *
 from ui import create_buttons, Slider, ShapeSelectionWindow
@@ -41,17 +38,15 @@ back_face_culling = True
 
 # Создание кнопок
 buttons = create_buttons()
-# Активируем кнопку по умолчанию
-buttons[1].is_active = True
+
 
 # Создание ползунков
 fov_slider = Slider(950, 550, 200, 25, FOV_MIN, FOV_MAX, FOV_DEFAULT, GRAY, LIGHT_BLUE)
 ambient_slider = Slider(950, 605, 200, 25, AMBIENT_INTENSITY_MIN, AMBIENT_INTENSITY_MAX, AMBIENT_DEFAULT, GRAY, LIGHT_BLUE)
 
-# --- Флаг для отображения окна выбора ---
+# Флаг для отображения окна выбора
 show_selection_window = False
 selection_window_instance = None
-# --- /Флаг ---
 
 # Функции обработки действий
 def global_set_rotation(mode):
@@ -110,6 +105,7 @@ while running:
             if result is not None:  # Окно закрыто (OK или Cancel)
                 show_selection_window = False
                 if result == "load_obj":
+
                     load_obj_file()
                     loaded_model = get_loaded_model()
                     if loaded_model:
@@ -122,8 +118,8 @@ while running:
                         print("Ошибка: загрузка отменена или не удалась")
                     selection_window_instance = None
 
-                elif result:  # Если результат - имя фигуры (не False)
-                    # Обновляем текущую фигуру и данные
+                elif result:
+
                     current_shape = result
                     vertices = shapes[current_shape]["vertices"]
                     vertices_np = np.array(vertices)
@@ -132,20 +128,18 @@ while running:
 
                     if current_shape != "loaded_model":
                         reset_loaded_model()
-                # selection_window_instance сбрасывается в open_shape_selection_window при следующем открытии
         else:
-            # Обработка событий для основного окна, если окно выбора закрыто
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for i, button in enumerate(buttons):
                     if button.check_click(event.pos):
                         for btn in buttons:
                             btn.is_active = False
                         button.is_active = True
-                        # Вызываем действие для нажатой кнопки
                         if i in button_actions:
                             action = button_actions[i]
-                            if callable(action):  # Проверяем, что это функция
-                                action()  # Вызываем функцию
+                            if callable(action):
+                                action()
+
                 # Обработка ползунков
                 fov_slider.handle_event(event)
                 ambient_slider.handle_event(event)
@@ -158,7 +152,7 @@ while running:
 
     screen.fill(BLACK)
 
-    # Обновление углов вращения (только если окно выбора закрыто)
+    # Обновление углов вращения
     if not show_selection_window:
         if rotation_mode == "x":
             angle_x += 0.01
@@ -204,13 +198,12 @@ while running:
         render_ui(screen, current_shape, camera_distance, rotation_mode, back_face_culling, visible_face_count,
                   fov_slider.get_value(), ambient_slider.get_value(), buttons, fov_slider, ambient_slider, clock, faces)
 
-    # --- ОТРИСОВКА ОКНА ВЫБОРА ---
     # Эта часть теперь отвечает только за отрисовку, если окно открыто
     if show_selection_window and selection_window_instance:
-        # Перерисовываем основной UI перед отрисовкой окна выбора, чтобы он не исчезал
+        # Перерисовываем основной UI перед отрисовкой окна выбора
         render_ui(screen, current_shape, camera_distance, rotation_mode, back_face_culling, visible_face_count,
                   fov_slider.get_value(), ambient_slider.get_value(), buttons, fov_slider, ambient_slider, clock, faces)
-        # Затем поверх отрисовываем окно выбора
+
         selection_window_instance.draw(screen)
 
     # Обновление экрана

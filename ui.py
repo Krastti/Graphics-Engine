@@ -1,8 +1,5 @@
 import pygame
 from parameters import *
-import tkinter as tk
-from tkinter import filedialog
-import obj_loader
 
 # Класс для кнопок
 class Button:
@@ -80,19 +77,8 @@ def create_buttons():
         Button(1060, 700, 100, 40, "Exit", RED, DARK_GRAY, BLACK)
     ]
 
-def select_obj_file():
-    root = tk.Tk()
-    root.withdraw()
-    filepath = filedialog.askopenfilename(
-        title = "Выберите файл .obj",
-        filetypes = [("OBJ files", "*.obj"), ("All files", "*.*")],
-    )
-    root.destroy()
-    return filepath
-
-# --- Новые функции для окна выбора фигуры ---
+# Класс меню выбора фигуры
 class ShapeSelectionWindow:
-    """Класс для управления окном выбора фигуры."""
     def __init__(self, available_shapes, current_shape):
         self.width = 300
         self.height = 350  # Увеличено для размещения списка и кнопок
@@ -119,7 +105,6 @@ class ShapeSelectionWindow:
         self.scroll_down_button = pygame.Rect(self.x + self.width - 25, self.y + 40 + (self.max_visible_items * 25), 20, 20)
 
     def handle_event(self, event):
-        """Обрабатывает события мыши для окна выбора."""
         if event.type == pygame.MOUSEBUTTONDOWN:
             # Проверка нажатия на элемент списка
             list_start_y = self.y + 40
@@ -128,7 +113,7 @@ class ShapeSelectionWindow:
                 item_rect = pygame.Rect(self.x + 10, item_y, self.width - 40, 25)
                 if item_rect.collidepoint(event.pos):
                     self.current_selection = self.available_shapes[i]
-                    return # Выход после выбора
+
 
             # Проверка нажатия на кнопки
             if self.ok_button.collidepoint(event.pos):
@@ -145,8 +130,7 @@ class ShapeSelectionWindow:
         return None # Ни одна кнопка не нажата
 
     def draw(self, screen):
-        """Рисует окно выбора фигуры."""
-        # Рисуем фон окна
+        # Фон окна
         pygame.draw.rect(screen, GRAY, (self.x, self.y, self.width, self.height))
         pygame.draw.rect(screen, WHITE, (self.x, self.y, self.width, self.height), 2) # Обводка
 
@@ -154,7 +138,7 @@ class ShapeSelectionWindow:
         title_text = self.font.render("Выберите фигуру", True, WHITE)
         screen.blit(title_text, (self.x + 10, self.y + 10))
 
-        # Рисуем список фигур с прокруткой
+        # Список фигур с прокруткой
         list_start_y = self.y + 40
         for i in range(self.scroll_offset, min(self.scroll_offset + self.max_visible_items, len(self.available_shapes))):
             item_y = list_start_y + (i - self.scroll_offset) * 25
@@ -163,14 +147,13 @@ class ShapeSelectionWindow:
             pygame.draw.rect(screen, bg_color, (self.x + 10, item_y, self.width - 40, 25))
             screen.blit(item_text, (self.x + 15, item_y + 2))
 
-        # Рисуем кнопку загрузки OBJ
-        pygame.draw.rect(screen, (150, 100, 200), self.load_obj_button)  # Фиолетовый цвет
+        # Кнопка загрузки OBJ
+        pygame.draw.rect(screen, (150, 100, 200), self.load_obj_button)
         pygame.draw.rect(screen, WHITE, self.load_obj_button, 1)
         load_obj_text = self.small_font.render("Загрузить OBJ", True, WHITE)
-        screen.blit(load_obj_text, (self.load_obj_button.centerx - load_obj_text.get_width() // 2,
-                                    self.load_obj_button.centery - load_obj_text.get_height() // 2))
+        screen.blit(load_obj_text, (self.load_obj_button.centerx - load_obj_text.get_width() // 2, self.load_obj_button.centery - load_obj_text.get_height() // 2))
 
-        # Рисуем кнопки
+        # Кнопки ОК и Отмена
         pygame.draw.rect(screen, LIGHT_BLUE, self.ok_button)
         pygame.draw.rect(screen, LIGHT_BLUE, self.cancel_button)
         pygame.draw.rect(screen, WHITE, self.ok_button, 1)
@@ -180,11 +163,3 @@ class ShapeSelectionWindow:
         cancel_text = self.small_font.render("Отмена", True, BLACK)
         screen.blit(ok_text, (self.ok_button.centerx - ok_text.get_width() // 2, self.ok_button.centery - ok_text.get_height() // 2))
         screen.blit(cancel_text, (self.cancel_button.centerx - cancel_text.get_width() // 2, self.cancel_button.centery - cancel_text.get_height() // 2))
-
-        # Рисуем кнопки прокрутки
-        pygame.draw.rect(screen, WHITE, self.scroll_up_button)
-        pygame.draw.rect(screen, WHITE, self.scroll_down_button)
-        up_text = self.small_font.render("^", True, BLACK)
-        down_text = self.small_font.render("v", True, BLACK)
-        screen.blit(up_text, (self.scroll_up_button.centerx - up_text.get_width() // 2, self.scroll_up_button.centery - up_text.get_height() // 2))
-        screen.blit(down_text, (self.scroll_down_button.centerx - down_text.get_width() // 2, self.scroll_down_button.centery - down_text.get_height() // 2))
