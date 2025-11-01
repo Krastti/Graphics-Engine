@@ -15,9 +15,9 @@ ORANGE = (255, 165, 0)
 WIDTH, HEIGHT = 1200, 800
 
 # Параметры камеры
-MIN_DISTANCE = 1.0
+MIN_DISTANCE = 0.0
 MAX_DISTANCE = 10.0
-ZOOM_SPEED = 0.2
+ZOOM_SPEED = 0.5
 
 # FOV параметры
 FOV_MIN = 50

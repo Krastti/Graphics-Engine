@@ -7,6 +7,7 @@ from shapes import get_shapes
 from math_utils import *
 from ui import create_buttons, Slider, ShapeSelectionWindow
 from graphics import render_scene, render_ui, render_shape_selection_window
+from obj_loader import *
 
 # Инициализация Pygame
 pygame.init()
@@ -30,10 +31,10 @@ angle_y = 0
 angle_z = 0
 
 # Текущий режим вращения
-rotation_mode = "y"
+rotation_mode = "stop"
 
 # Параметры камеры
-camera_distance = 3.0
+camera_distance = 5.0
 
 # Back Face Culling
 back_face_culling = True
@@ -102,19 +103,35 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        # --- НАЧАЛО ИЗМЕНЁННОЙ ЧАСТИ ОБРАБОТКИ СОБЫТИЙ ---
+
         # Обработка событий для окна выбора, если оно открыто
         if show_selection_window and selection_window_instance:
             result = render_shape_selection_window(screen, event, selection_window_instance)
             if result is not None:  # Окно закрыто (OK или Cancel)
                 show_selection_window = False
-                if result:  # Если результат - имя фигуры (не False)
+                if result == "load_obj":
+                    load_obj_file()
+                    loaded_model = get_loaded_model()
+                    if loaded_model:
+                        vertices = loaded_model["vertices"]
+                        vertices_np = np.array(vertices)
+                        faces = loaded_model["faces"]
+                        face_colors = loaded_model["colors"]
+                        current_shape = "loaded_model"
+                    else:
+                        print("Ошибка: загрузка отменена или не удалась")
+                    selection_window_instance = None
+
+                elif result:  # Если результат - имя фигуры (не False)
                     # Обновляем текущую фигуру и данные
                     current_shape = result
                     vertices = shapes[current_shape]["vertices"]
                     vertices_np = np.array(vertices)
                     faces = shapes[current_shape]["faces"]
                     face_colors = shapes[current_shape]["colors"]
+
+                    if current_shape != "loaded_model":
+                        reset_loaded_model()
                 # selection_window_instance сбрасывается в open_shape_selection_window при следующем открытии
         else:
             # Обработка событий для основного окна, если окно выбора закрыто
@@ -138,7 +155,6 @@ while running:
             elif event.type == pygame.MOUSEMOTION:
                 fov_slider.handle_event(event)
                 ambient_slider.handle_event(event)
-        # --- КОНЕЦ ИЗМЕНЁННОЙ ЧАСТИ ---
 
     screen.fill(BLACK)
 

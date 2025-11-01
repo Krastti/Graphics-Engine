@@ -1,5 +1,8 @@
 import pygame
 from parameters import *
+import tkinter as tk
+from tkinter import filedialog
+import obj_loader
 
 # Класс для кнопок
 class Button:
@@ -77,6 +80,16 @@ def create_buttons():
         Button(1060, 700, 100, 40, "Exit", RED, DARK_GRAY, BLACK)
     ]
 
+def select_obj_file():
+    root = tk.Tk()
+    root.withdraw()
+    filepath = filedialog.askopenfilename(
+        title = "Выберите файл .obj",
+        filetypes = [("OBJ files", "*.obj"), ("All files", "*.*")],
+    )
+    root.destroy()
+    return filepath
+
 # --- Новые функции для окна выбора фигуры ---
 class ShapeSelectionWindow:
     """Класс для управления окном выбора фигуры."""
@@ -97,6 +110,9 @@ class ShapeSelectionWindow:
         button_height = 30
         self.ok_button = pygame.Rect(self.x + 30, self.y + self.height - 50, button_width, button_height)
         self.cancel_button = pygame.Rect(self.x + self.width - 30 - button_width, self.y + self.height - 50, button_width, button_height)
+
+        # Кнопка загрузки файла
+        self.load_obj_button = pygame.Rect(self.x + (self.width - 120) // 2, self.y + self.height - 90, 120, 30) # Центрирована по ширине окна
 
         # Кнопки прокрутки (если нужно)
         self.scroll_up_button = pygame.Rect(self.x + self.width - 25, self.y + 40, 20, 20)
@@ -119,6 +135,9 @@ class ShapeSelectionWindow:
                 return self.current_selection
             elif self.cancel_button.collidepoint(event.pos):
                 return None # Отмена
+            elif self.load_obj_button.collidepoint(event.pos):
+                # Возвращаем специальный идентификатор для загрузки OBJ
+                return "load_obj"
             elif self.scroll_up_button.collidepoint(event.pos) and self.scroll_offset > 0:
                 self.scroll_offset -= 1
             elif self.scroll_down_button.collidepoint(event.pos) and (self.scroll_offset + self.max_visible_items) < len(self.available_shapes):
@@ -143,6 +162,13 @@ class ShapeSelectionWindow:
             bg_color = LIGHT_BLUE if self.available_shapes[i] == self.current_selection else GRAY
             pygame.draw.rect(screen, bg_color, (self.x + 10, item_y, self.width - 40, 25))
             screen.blit(item_text, (self.x + 15, item_y + 2))
+
+        # Рисуем кнопку загрузки OBJ
+        pygame.draw.rect(screen, (150, 100, 200), self.load_obj_button)  # Фиолетовый цвет
+        pygame.draw.rect(screen, WHITE, self.load_obj_button, 1)
+        load_obj_text = self.small_font.render("Загрузить OBJ", True, WHITE)
+        screen.blit(load_obj_text, (self.load_obj_button.centerx - load_obj_text.get_width() // 2,
+                                    self.load_obj_button.centery - load_obj_text.get_height() // 2))
 
         # Рисуем кнопки
         pygame.draw.rect(screen, LIGHT_BLUE, self.ok_button)
