@@ -76,7 +76,7 @@ def exit_code():
     global running
     running = False
 
-# Создаем словарь для обработки кликов по кнопкам
+# Словарь для обработки кликов по кнопкам
 button_actions = {
     0: lambda: global_set_rotation("x"),
     1: lambda: global_set_rotation("y"),
@@ -98,11 +98,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-
         # Обработка событий для окна выбора, если оно открыто
         if show_selection_window and selection_window_instance:
             result = render_shape_selection_window(screen, event, selection_window_instance)
-            if result is not None:  # Окно закрыто (OK или Cancel)
+            if result is not None:
                 show_selection_window = False
                 if result == "load_obj":
 
@@ -187,18 +186,13 @@ while running:
         # Рендеринг сцены
         visible_face_count = render_scene(screen, current_shape, rotated_vertices, faces, face_colors,
                     camera_distance, fov_slider.get_value(), ambient_slider.get_value(), LIGHT_DIRECTION, back_face_culling)
-    else:
-        # Если окно выбора открыто, рендерим только сцену без вращения
-        visible_face_count = render_scene(screen, current_shape, vertices_np, faces, face_colors,
-                    camera_distance, fov_slider.get_value(), ambient_slider.get_value(), LIGHT_DIRECTION, back_face_culling)
 
-
-    # Рендеринг UI (только если окно выбора закрыто)
+    # Рендеринг UI
     if not show_selection_window:
         render_ui(screen, current_shape, camera_distance, rotation_mode, back_face_culling, visible_face_count,
                   fov_slider.get_value(), ambient_slider.get_value(), buttons, fov_slider, ambient_slider, clock, faces)
 
-    # Эта часть теперь отвечает только за отрисовку, если окно открыто
+    # Эта часть отвечает только за отрисовку, если окно открыто
     if show_selection_window and selection_window_instance:
         # Перерисовываем основной UI перед отрисовкой окна выбора
         render_ui(screen, current_shape, camera_distance, rotation_mode, back_face_culling, visible_face_count,

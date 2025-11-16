@@ -35,7 +35,7 @@ def render_scene(screen, current_shape, rotated_vertices, faces, face_colors, ca
     else:
         faces_with_depth = [(faces[i], 0, face_colors[i]) for i in range(len(faces))]
 
-    # Шаг 4: Проверка видимости после сортировки, но перед рендером
+    # Шаг 4: Проверка видимости после сортировки
     visible_face_count = 0
     for face, z_avg, color in faces_with_depth:
         face_vertices_3d = [rotated_vertices[idx] for idx in face]
@@ -44,16 +44,15 @@ def render_scene(screen, current_shape, rotated_vertices, faces, face_colors, ca
 
         # Проверяем видимость грани с помощью Back Face Culling
         if needs_bfc and not is_face_visible(face_normal, face_center, camera_position=np.array([0, 0, -camera_distance])):
-            continue  # Пропускаем невидимую грань, не рендеря её
+            continue  # Пропускаем невидимую грань
 
         # Применяем модель освещения Ламберта
         lighted_color = apply_lambert_lighting(color, face_normal, light_direction, ambient_intensity)
 
-        # Шаг 5: Отрисовка текущей (видимой) грани
+        # Шаг 5: Отрисовка текущей грани
         face_points = [projected_points[idx] for idx in face]
         # Проверка на валидность полигона (не все точки лежат на одной прямой)
         if len(face_points) >= 3 and not are_points_collinear(face_points):
-
             try:
                 pygame.draw.polygon(screen, lighted_color, face_points)
             except TypeError:
