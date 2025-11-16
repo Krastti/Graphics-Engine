@@ -97,6 +97,6 @@
 
 Проект разработан в учебных целях.  
 Этот проект распространяется под лицензией MIT License.
-Полный текст лицензии доступен в файле [LICENSE](#LICENSE)
+Полный текст лицензии доступен в файле [LICENSE](https://github.com/Krastti/Graphics-Engine/blob/main/LICENSE)
 
 ---
